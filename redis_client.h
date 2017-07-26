@@ -9,14 +9,14 @@
 #include <string>
 #include <time.h>
 #include <vector>
-
+using namespace std;
 class RedisClient
 {
 public:
     RedisClient();
     ~RedisClient();
 
-    void ClientInit (const stirng &host, unsigned int port,
+    void ClientInit (const string &host, unsigned int port,
                      const string &password, unsigned int ReconnectIntervalTime = 5000000);  //us
 
     bool Get(const string &key, string &value);
@@ -41,6 +41,17 @@ private:
     bool RedisReConnection();
     bool ChickReply(const redisReply *reply);
     bool FreeReply(const redisReply *reply);
+
+private:
+    string mHost;
+    unsigned int mPort;
+    string mPassword;
+    unsigned int mTimeout;
+    unsigned int mOperatorTimeout;
+    unsigned long mReconnectIntervalTime;
+    struct timeval mLastFalseTime;
+    redisContext *mCtx;
+    bool mIsConnectOk;
 };
 
 #endif //REDISCLIENT_REDIS_CLIENT_H

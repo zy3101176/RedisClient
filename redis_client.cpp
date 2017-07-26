@@ -9,12 +9,18 @@ RedisClient::RedisClient() {
 }
 
 RedisClient::~RedisClient() {
-
+    if(mCtx != NULL)
+        redisFree(mCtx);
+    mCtx = NULL;
 }
 
-void RedisClient::ClientInit(const stirng &host, unsigned int port, const string &password,
-                             unsigned int ReconnectIntervalTime) {
-
+void RedisClient::ClientInit(const string &host, unsigned int port, const string &password,
+                             unsigned int reconnectIntervalTime) {
+    mHost = host;
+    mPort = port;
+    mPassword = password;
+    mReconnectIntervalTime = reconnectIntervalTime;
+    mIsConnectOk = false;
 }
 
 bool RedisClient::Get(const string &key, string &value) {
@@ -49,19 +55,11 @@ bool RedisClient::MSet(const vector <string> &keys, vector <string> &value) {
 
 }
 
-bool RedisClient::MSet(const vector <string> &keys, vector <string> &value) {
-
-}
-
 bool RedisClient::HMGet(const string &key, const vector <string> &field, vector <string> &value) {
 
 }
 
 bool RedisClient::HMSet(const string &key, const vector <string> &field, const vector <string> &value) {
-
-}
-
-bool RedisClient::HMGet(const string &key, const vector <string> &field, vector <string> &value) {
 
 }
 
