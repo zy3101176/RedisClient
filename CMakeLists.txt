@@ -1,9 +1,19 @@
-cmake_minimum_required(VERSION 3.7)
 project(RedisClient)
 
-set(CMAKE_CXX_STANDARD 11)
+cmake_minimum_required(VERSION 3.7)
 
-set(SOURCE_FILES main.cpp redis_client.cpp redis_client.h)
-add_executable(RedisClient ${SOURCE_FILES})
-include_directories(/usr/local/include/hiredis/)
-link_directories("/usr/local/lib/")
+set(CMAKE_CXX_FLAGS "-g -pthread")
+
+include_directories(
+        /usr/local/include
+        /usr/include
+)
+
+link_directories(
+        /usr/local/lib
+        /usr/lib
+)
+
+set(EXECUTABLE_OUTPUT_PATH /home/zhu/RedisClient/bin)
+
+add_subdirectory(src)
