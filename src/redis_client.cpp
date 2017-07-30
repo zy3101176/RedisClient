@@ -72,7 +72,39 @@ bool RedisClient::SetTimeoutTime(unsigned int time) {
 }
 
 bool RedisClient::RedisConnection() {
+    bool bRet = false;
+    struct timeval timeoutVal;
+    timeoutVal.tv_sec = mTimeout;
+    timeoutVal.tv_usec = 0;
+    if(mTimeout == 0){
+        mCtx = redisConnect(mHost.c_str(), mPort);
+    }
+    else {
+        mCtx = redisConnectWithTimeout(mHost.c_str(), mPort, timeoutVal);
+    }
+    if(mCtx == NULL || mCtx->err ) {
+        if(mCtx != NULL){
+            redisFree(mCtx);
+            mCtx = NULL;
+        }
+    }
+    if(mPassword.size() == 0){
+        bRet = true;
+    }
+    else{
+        redisReply *reply = static_cast<redisReply *>(this->mCtx, "AUTH %s", mPassword.c_str());
+        if(reply == NULL || strcasecmp(reply ->str, "OK") != 0){
+            bRet = false;
+        }
+        else{
+            bRet = true;
+        }
+        freeReplyObject(reply);
+    }
+    if(!bRet) {
 
+    }
+    return bRet;
 }
 
 bool RedisClient::RedisReConnection() {
