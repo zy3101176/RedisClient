@@ -24,7 +24,7 @@ void RedisClient::ClientInit(const string &host, unsigned int port, const string
 }
 
 bool RedisClient::Get(const string &key, string &value) {
-
+    return CommandInteger( "SET %s %s", key.c_str(), value.c_str());
 }
 
 bool RedisClient::Set(const string &key, const string &value) {
@@ -101,9 +101,9 @@ bool RedisClient::RedisConnection() {
         }
         freeReplyObject(reply);
     }
-    if(!bRet) {
-
-    }
+    //if(!bRet) {
+    //
+    //}
     return bRet;
 }
 
@@ -115,6 +115,24 @@ bool RedisClient::ChickReply(const redisReply *reply) {
 
 }
 
-bool RedisClient::FreeReply(const redisReply *reply) {
+void RedisClient::FreeReply(const redisReply *reply) {
+    if(reply != NULL){
+        freeReplyObject((void *) reply);
+    }
+}
 
+bool RedisClient::CommandInteger(const char *cmd, ...) {
+    bool bRet = false;
+    if(this->mCtx == NULL){
+        return bRet;
+    }
+    va_list args;
+    va_start(args,cmd);
+    redisReply *reply = static_cast<redisReply *>(redisCommand(this->mCtx, cmd, args));
+    va_end(args);
+    if(ChickReply(reply)){
+        bRet = true;
+    }
+    FreeReply(reply);
+    return bRet;
 }
