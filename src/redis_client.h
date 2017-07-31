@@ -19,7 +19,7 @@ public:
 
     void ClientInit (const string &host, unsigned int port,
                      const string &password, unsigned int ReconnectIntervalTime = 5000000);  //us
-
+    bool RedisConnection();
     bool Get(const string &key, string &value);
     bool Set(const string &key, const string &value);
     bool Del(const string &key);
@@ -38,7 +38,6 @@ public:
     bool SetTimeoutTime(unsigned int time);      //us
 
 private:
-    bool RedisConnection();
     bool CommandInteger(const char* cmd, ...);
     bool RedisReConnection();
     bool ChickReply(const redisReply *reply);
