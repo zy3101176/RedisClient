@@ -92,7 +92,7 @@ bool RedisClient::RedisConnection() {
         bRet = true;
     }
     else{
-        redisReply *reply = static_cast<redisReply *>(this->mCtx, "AUTH %s", mPassword.c_str());
+        redisReply *reply = static_cast<redisReply *>(redisCommand(this->mCtx, "AUTH %s", mPassword.c_str()));
         if(reply == NULL || strcasecmp(reply ->str, "OK") != 0){
             bRet = false;
         }

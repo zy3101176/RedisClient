@@ -9,6 +9,7 @@
 #include <string>
 #include <time.h>
 #include <vector>
+#include <strings.h>
 using namespace std;
 class RedisClient
 {
