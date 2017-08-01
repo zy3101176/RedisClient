@@ -29,7 +29,7 @@ public:
     bool HDel(const string &key, const string &field);
 
     bool MGet(const vector<string> &keys, vector<string> &value);
-    bool MSet(const vector<string> &keys, vector<string> &value);
+    bool MSet(const vector<string> &keys, const vector<string> &values);
 
     bool HMGet(const string &key, const vector<string> &field, vector<string> &value);
     bool HMSet(const string &key, const vector<string> &field, const vector<string> &value);
@@ -41,7 +41,7 @@ private:
     bool CommandInteger(const char* cmd, ...);
     bool CommandString(string &data, const char* cmd, ...);
     bool RedisReConnection();
-    bool ChickReply(const redisReply *reply);
+    bool CheckReply(const redisReply *reply);
     void FreeReply(const redisReply *reply);
 
 private:

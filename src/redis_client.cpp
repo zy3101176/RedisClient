@@ -51,8 +51,22 @@ bool RedisClient::MGet(const vector <string> &keys, vector <string> &value) {
 
 }
 
-bool RedisClient::MSet(const vector <string> &keys, vector <string> &value) {
-
+bool RedisClient::MSet(const vector <string> &keys, const vector <string> &values) {
+    bool bRet = false;
+    if(keys.size() != values.size())
+    {
+        return false;
+    }
+    string strCmd = "MSET";
+    for(int i = 0; i < keys.size(); ++i) {
+        strCmd += " "+keys[i]+" "+values[i];
+    }
+    redisReply *reply = static_cast<redisReply*>(redisCommand(this->mCtx, strCmd.c_str()));
+    if (CheckReply(reply)) {
+        bRet = true;
+    }
+    FreeReply(reply);
+    return bRet;
 }
 
 bool RedisClient::HMGet(const string &key, const vector <string> &field, vector <string> &value) {
@@ -110,7 +124,7 @@ bool RedisClient::RedisConnection() {
 bool RedisClient::RedisReConnection() {
 }
 
-bool RedisClient::ChickReply(const redisReply *reply) {
+bool RedisClient::CheckReply(const redisReply *reply) {
     if(reply == NULL){
         return false;
     }
@@ -159,7 +173,7 @@ bool RedisClient::CommandInteger(const char *cmd, ...) {
     va_start(args,cmd);
     redisReply *reply = static_cast<redisReply *>(redisvCommand(this->mCtx, cmd, args));
     va_end(args);
-    if(ChickReply(reply)){
+    if(CheckReply(reply)){
         bRet = true;
     }
     FreeReply(reply);
@@ -175,7 +189,7 @@ bool RedisClient::CommandString(string &data, const char *cmd, ...) {
     va_start(args, cmd);
     redisReply *reply = static_cast<redisReply *>(redisvCommand(this->mCtx, cmd, args));
     va_end(args);
-    if(ChickReply(reply)){
+    if(CheckReply(reply)){
         data.assign(reply->str, reply->len);
         bRet = true;
     }
