@@ -108,7 +108,6 @@ bool RedisClient::RedisConnection() {
 }
 
 bool RedisClient::RedisReConnection() {
-    mCtx.
 }
 
 bool RedisClient::ChickReply(const redisReply *reply) {
