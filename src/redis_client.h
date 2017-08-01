@@ -39,6 +39,7 @@ public:
 
 private:
     bool CommandInteger(const char* cmd, ...);
+    bool CommandString(string &data, const char* cmd, ...);
     bool RedisReConnection();
     bool ChickReply(const redisReply *reply);
     void FreeReply(const redisReply *reply);

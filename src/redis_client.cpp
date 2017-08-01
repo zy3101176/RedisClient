@@ -24,11 +24,11 @@ void RedisClient::ClientInit(const string &host, unsigned int port, const string
 }
 
 bool RedisClient::Get(const string &key, string &value) {
-    return CommandInteger( "SET %s %s", key.c_str(), value.c_str());
+    return CommandString(value, "GET %s", key.c_str());
 }
 
 bool RedisClient::Set(const string &key, const string &value) {
-
+    return CommandInteger( "SET %s %s", key.c_str(), value.c_str());
 }
 
 bool RedisClient::Del(const string &key) {
@@ -108,11 +108,41 @@ bool RedisClient::RedisConnection() {
 }
 
 bool RedisClient::RedisReConnection() {
-
+    mCtx.
 }
 
 bool RedisClient::ChickReply(const redisReply *reply) {
-
+    if(reply == NULL){
+        return false;
+    }
+    switch(reply->type){
+        case REDIS_REPLY_STRING:{
+            return true;
+        }
+        case REDIS_REPLY_ARRAY:{
+            return true;
+        }
+        case REDIS_REPLY_INTEGER:{
+            return true;
+        }
+        case REDIS_REPLY_NIL:{
+            return true;
+        }
+        case REDIS_REPLY_STATUS:{
+            if(strcasecmp(reply->str,"OK") == 0){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        case REDIS_REPLY_ERROR:{
+            return false;
+        }
+        default:{
+            return false;
+        }
+    }
 }
 
 void RedisClient::FreeReply(const redisReply *reply) {
@@ -128,7 +158,7 @@ bool RedisClient::CommandInteger(const char *cmd, ...) {
     }
     va_list args;
     va_start(args,cmd);
-    redisReply *reply = static_cast<redisReply *>(redisCommand(this->mCtx, cmd, args));
+    redisReply *reply = static_cast<redisReply *>(redisvCommand(this->mCtx, cmd, args));
     va_end(args);
     if(ChickReply(reply)){
         bRet = true;
@@ -136,3 +166,20 @@ bool RedisClient::CommandInteger(const char *cmd, ...) {
     FreeReply(reply);
     return bRet;
 }
+
+bool RedisClient::CommandString(string &data, const char *cmd, ...) {
+    bool bRet = false;
+    if(this->mCtx == NULL){
+        return bRet;
+    }
+    va_list args;
+    va_start(args, cmd);
+    redisReply *reply = static_cast<redisReply *>(redisvCommand(this->mCtx, cmd, args));
+    va_end(args);
+    if(ChickReply(reply)){
+        data.assign(reply->str, reply->len);
+        bRet = true;
+    }
+    return bRet;
+}
+
