@@ -53,15 +53,18 @@ bool RedisClient::MGet(const vector <string> &keys, vector <string> &value) {
 
 bool RedisClient::MSet(const vector <string> &keys, const vector <string> &values) {
     bool bRet = false;
-    if(keys.size() != values.size())
-    {
+    if(keys.size() != values.size()) {
         return false;
     }
-    string strCmd = "MSET";
+    int len = 1;    //指令长度
+    char *msg[len];
+    msg[len++] = (char *)"MSET";
     for(int i = 0; i < keys.size(); ++i) {
-        strCmd += " "+keys[i]+" "+values[i];
+        msg[len++] = (char *)keys[i].c_str();
+        msg[len++] = (char *)values[i].c_str();
     }
-    redisReply *reply = static_cast<redisReply*>(redisCommand(this->mCtx, strCmd.c_str()));
+    const char **argv = (const char **) msg;
+    redisReply *reply = static_cast<redisReply*>(redisCommandArgv(this->mCtx, len, argv, NULL));
     if (CheckReply(reply)) {
         bRet = true;
     }
