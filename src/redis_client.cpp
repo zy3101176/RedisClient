@@ -41,7 +41,7 @@ bool RedisClient::Del(const vector<string> &keys){
         return false;
     }
     int len = 0;
-    char *msg[keys.size()];
+    char *msg[keys.size()+1];
     msg[len++] = (char *)"DEL";
     for(int i = 0; i < keys.size(); i++){
         msg[len++] = (char *)keys[i].c_str();
@@ -73,7 +73,7 @@ bool RedisClient::HDel(const string &key, const vector<string> &fields){
         return false;
     }
     int len = 0;
-    char *msg[fields.size()];
+    char *msg[fields.size()+2];
     msg[len++] = (char *)"HDEL";
     msg[len++] = (char *)key.c_str();
     for(int i = 0; i < fields.size(); i++){
