@@ -23,12 +23,13 @@ public:
     bool Get(const string &key, string &value);
     bool Set(const string &key, const string &value);
     bool Del(const string &key);
+    bool Del(const vector<string> &keys);
 
     bool HGet(const string &key, const string &field, string &value);
     bool HSet(const string &key, const string &field, const string &value);
     bool HDel(const string &key, const string &field);
 
-    bool MGet(const vector<string> &keys, vector<string> &value);
+    bool MGet(const vector<string> &keys, vector<string> &values);
     bool MSet(const vector<string> &keys, const vector<string> &values);
 
     bool HMGet(const string &key, const vector<string> &field, vector<string> &value);

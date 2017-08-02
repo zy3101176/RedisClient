@@ -28,27 +28,52 @@ bool RedisClient::Get(const string &key, string &value) {
 }
 
 bool RedisClient::Set(const string &key, const string &value) {
-    return CommandInteger( "SET %s %s", key.c_str(), value.c_str());
+    return CommandInteger("SET %s %s", key.c_str(), value.c_str());
 }
 
 bool RedisClient::Del(const string &key) {
+    return CommandInteger("DEL %s", key.c_str());
+}
 
+bool RedisClient::Del(const vector<string> &keys){
+    
 }
 
 bool RedisClient::HGet(const string &key, const string &field, string &value) {
-
+    return CommandString(value, "HGET %s %s", key.c_str(), field.c_str());
 }
 
 bool RedisClient::HSet(const string &key, const string &field, const string &value) {
-
+    return CommandInteger("HSET %s %s %s", key.c_str(), field.c_str(), value.c_str());
 }
 
 bool RedisClient::HDel(const string &key, const string &field) {
-
+    return CommandInteger("HDEL %s %s", key.c_str(), field.c_str());
 }
 
-bool RedisClient::MGet(const vector <string> &keys, vector <string> &value) {
-
+bool RedisClient::MGet(const vector <string> &keys, vector <string> &values) {
+    bool bRet = false;
+    if(keys.empty()){
+        return false;
+    }
+    int len = 0;
+    char *msg[keys.size()+1];
+    msg[len++] = (char *)"MGET";
+    for(int i = 0; i < keys.size(); i++){
+        msg[len++] = (char *)keys[i].c_str();
+    }
+    const char **argv = (const char **)msg;
+    redisReply *reply = static_cast<redisReply*>(redisCommandArgv(this->mCtx, len, argv, NULL));
+    if(CheckReply(reply)){
+        for(size_t i = 0; i < reply->elements; i++){
+            string value;
+            value.assign(reply->element[i]->str, reply->element[i]->len);
+            values.push_back(value);
+        }
+        bRet  = true;
+    }
+    FreeReply(reply);
+    return bRet;
 }
 
 bool RedisClient::MSet(const vector <string> &keys, const vector <string> &values) {
@@ -56,10 +81,10 @@ bool RedisClient::MSet(const vector <string> &keys, const vector <string> &value
     if(keys.size() != values.size()) {
         return false;
     }
-    int len = 1;    //指令长度
-    char *msg[len];
+    int len = 0;    //指令长度
+    char *msg[keys.size()*2+1];
     msg[len++] = (char *)"MSET";
-    for(int i = 0; i < keys.size(); ++i) {
+    for(int i = 0; i < keys.size(); i++) {
         msg[len++] = (char *)keys[i].c_str();
         msg[len++] = (char *)values[i].c_str();
     }
@@ -116,7 +141,7 @@ bool RedisClient::RedisConnection() {
         else{
             bRet = true;
         }
-        freeReplyObject(reply);
+        FreeReply(reply);
     }
     //if(!bRet) {
     //
