@@ -67,6 +67,26 @@ bool RedisClient::HDel(const string &key, const string &field) {
     return CommandInteger("HDEL %s %s", key.c_str(), field.c_str());
 }
 
+bool RedisClient::HDel(const string &key, const vector<string> &fields){
+    bool bRet = false;
+    if(fields.empty()){
+        return false;
+    }
+    int len = 0;
+    char *msg[fields.size()];
+    msg[len++] = (char *)"HDEL";
+    msg[len++] = (char *)key.c_str();
+    for(int i = 0; i < fields.size(); i++){
+        msg[len++] = (char *)fields[i].c_str();
+    }
+    const char **argv = (const char **)msg;
+    redisReply *reply = static_cast<redisReply*> (redisCommandArgv(this->mCtx, len, argv, NULL));
+    if(CheckReply(reply)){
+        bRet = true;
+    }
+    FreeReply(reply);
+    return bRet;
+}
 bool RedisClient::MGet(const vector <string> &keys, vector <string> &values) {
     bool bRet = false;
     if(keys.empty()){

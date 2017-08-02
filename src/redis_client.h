@@ -28,6 +28,7 @@ public:
     bool HGet(const string &key, const string &field, string &value);
     bool HSet(const string &key, const string &field, const string &value);
     bool HDel(const string &key, const string &field);
+    bool HDel(const string &key, const vector<string> &fields);
 
     bool MGet(const vector<string> &keys, vector<string> &values);
     bool MSet(const vector<string> &keys, const vector<string> &values);
