@@ -36,7 +36,23 @@ bool RedisClient::Del(const string &key) {
 }
 
 bool RedisClient::Del(const vector<string> &keys){
-    
+    bool bRet = false;
+    if(keys.empty()){
+        return false;
+    }
+    int len = 0;
+    char *msg[keys.size()];
+    msg[len++] = (char *)"DEL";
+    for(int i = 0; i < keys.size(); i++){
+        msg[len++] = (char *)keys[i].c_str();
+    }
+    const char **argv = (const char **)msg;
+    redisReply *reply = static_cast<redisReply*> (redisCommandArgv(this->mCtx, len, argv, NULL));
+    if(CheckReply(reply)){
+        bRet = true;
+    }
+    FreeReply(reply);
+    return bRet;
 }
 
 bool RedisClient::HGet(const string &key, const string &field, string &value) {
@@ -70,7 +86,7 @@ bool RedisClient::MGet(const vector <string> &keys, vector <string> &values) {
             value.assign(reply->element[i]->str, reply->element[i]->len);
             values.push_back(value);
         }
-        bRet  = true;
+        bRet = true;
     }
     FreeReply(reply);
     return bRet;
@@ -150,6 +166,7 @@ bool RedisClient::RedisConnection() {
 }
 
 bool RedisClient::RedisReConnection() {
+
 }
 
 bool RedisClient::CheckReply(const redisReply *reply) {
