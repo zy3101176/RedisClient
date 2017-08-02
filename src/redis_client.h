@@ -33,11 +33,11 @@ public:
     bool MGet(const vector<string> &keys, vector<string> &values);
     bool MSet(const vector<string> &keys, const vector<string> &values);
 
-    bool HMGet(const string &key, const vector<string> &field, vector<string> &value);
-    bool HMSet(const string &key, const vector<string> &field, const vector<string> &value);
+    bool HMGet(const string &key, const vector<string> &fields, vector<string> &values);
+    bool HMSet(const string &key, const vector<string> &fields, const vector<string> &values);
 
-    bool SelectDataBase(unsigned int dbnumber);
-    bool SetTimeoutTime(unsigned int time);      //us
+    bool SelectDataBase(const string & dbnumber);
+    bool SetOperateTimeout(struct timeval time);      //us
 
 private:
     bool CommandInteger(const char* cmd, ...);

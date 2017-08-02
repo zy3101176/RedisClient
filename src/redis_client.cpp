@@ -133,20 +133,63 @@ bool RedisClient::MSet(const vector <string> &keys, const vector <string> &value
     return bRet;
 }
 
-bool RedisClient::HMGet(const string &key, const vector <string> &field, vector <string> &value) {
-
+bool RedisClient::HMGet(const string &key, const vector <string> &fields, vector <string> &values) {
+    bool bRet = false;
+    if(fields.empty()){
+        return false;
+    }
+    int len = 0;
+    char *msg[fields.size()+2];
+    msg[len++] = (char *)"HMGET";
+    msg[len++] = (char *)key.c_str();
+    for(int i = 0; i < fields.size(); i++){
+        msg[len++] = (char *)fields[i].c_str();
+    }
+    const char **argv = (const char **)msg;
+    redisReply *reply = static_cast<redisReply*>(redisCommandArgv(this->mCtx, len, argv, NULL));
+    if(CheckReply(reply)){
+        for(size_t i = 0; i < reply->elements; i++){
+            string value;
+            value.assign(reply->element[i]->str, reply->element[i]->len);
+            values.push_back(value);
+        }
+        bRet = true;
+    }
+    FreeReply(reply);
+    return bRet;
 }
 
-bool RedisClient::HMSet(const string &key, const vector <string> &field, const vector <string> &value) {
-
+bool RedisClient::HMSet(const string &key, const vector <string> &fields, const vector <string> &values) {
+    bool bRet = false;
+    if(fields.size() != values.size()) {
+        return false;
+    }
+    int len = 0;    //指令长度
+    char *msg[fields.size()*2+2];
+    msg[len++] = (char *)"HMSET";
+    msg[len++] = (char *)key.c_str();
+    for(int i = 0; i < fields.size(); i++) {
+        msg[len++] = (char *)fields[i].c_str();
+        msg[len++] = (char *)values[i].c_str();
+    }
+    const char **argv = (const char **) msg;
+    redisReply *reply = static_cast<redisReply*>(redisCommandArgv(this->mCtx, len, argv, NULL));
+    if (CheckReply(reply)) {
+        bRet = true;
+    }
+    FreeReply(reply);
+    return bRet;
 }
 
-bool RedisClient::SelectDataBase(unsigned int dbnumber) {
-
+bool RedisClient::SelectDataBase(const string &dbnumber) {
+    string status;
+    return CommandString(status,"select %s",dbnumber.c_str()) && !strcasecmp(status.c_str(), "OK");
 }
 
-bool RedisClient::SetTimeoutTime(unsigned int time) {
-
+bool RedisClient::SetOperateTimeout(struct timeval time) {
+    if(!redisSetTimeout(mCtx, time)){
+        return true;
+    }
 }
 
 bool RedisClient::RedisConnection() {
@@ -186,7 +229,11 @@ bool RedisClient::RedisConnection() {
 }
 
 bool RedisClient::RedisReConnection() {
-
+    if(mCtx != NULL){
+        redisFree(mCtx);
+        mCtx = NULL;
+    }
+    return RedisConnection();
 }
 
 bool RedisClient::CheckReply(const redisReply *reply) {
