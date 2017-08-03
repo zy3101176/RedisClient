@@ -18,7 +18,7 @@ void RedisClient::ClientInit(const string &host, unsigned int port, const string
     mPort = port;
     mPassword = password;
     mReconnectIntervalTime = reconnectIntervalTime;
-    mIsConnectOk = false;
+    mIsConnectOk = true;
 }
 
 bool RedisClient::Get(const string &key, string &value) {
@@ -243,9 +243,9 @@ bool RedisClient::RedisConnection() {
         }
         FreeReply(reply);
     }
-    //if(!bRet) {
-    //
-    //}
+    if(!bRet) {
+        MarkError();
+    }
     return bRet;
 }
 
