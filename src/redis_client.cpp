@@ -4,9 +4,7 @@
 
 #include "redis_client.h"
 
-RedisClient::RedisClient() {
-
-}
+RedisClient::RedisClient():mCtx(NULL) {}
 
 RedisClient::~RedisClient() {
     if(mCtx != NULL)
@@ -36,6 +34,9 @@ bool RedisClient::Del(const string &key) {
 }
 
 bool RedisClient::Del(const vector<string> &keys){
+    if(!CheckConnectionStatus()){
+        return false;
+    }
     bool bRet = false;
     if(keys.empty()){
         return false;
@@ -68,6 +69,9 @@ bool RedisClient::HDel(const string &key, const string &field) {
 }
 
 bool RedisClient::HDel(const string &key, const vector<string> &fields){
+    if(!CheckConnectionStatus()){
+        return false;
+    }
     bool bRet = false;
     if(fields.empty()){
         return false;
@@ -88,6 +92,9 @@ bool RedisClient::HDel(const string &key, const vector<string> &fields){
     return bRet;
 }
 bool RedisClient::MGet(const vector <string> &keys, vector <string> &values) {
+    if(!CheckConnectionStatus()){
+        return false;
+    }
     bool bRet = false;
     if(keys.empty()){
         return false;
@@ -113,6 +120,9 @@ bool RedisClient::MGet(const vector <string> &keys, vector <string> &values) {
 }
 
 bool RedisClient::MSet(const vector <string> &keys, const vector <string> &values) {
+    if(!CheckConnectionStatus()){
+        return false;
+    }
     bool bRet = false;
     if(keys.size() != values.size()) {
         return false;
@@ -134,6 +144,9 @@ bool RedisClient::MSet(const vector <string> &keys, const vector <string> &value
 }
 
 bool RedisClient::HMGet(const string &key, const vector <string> &fields, vector <string> &values) {
+    if(!CheckConnectionStatus()){
+        return false;
+    }
     bool bRet = false;
     if(fields.empty()){
         return false;
@@ -160,6 +173,9 @@ bool RedisClient::HMGet(const string &key, const vector <string> &fields, vector
 }
 
 bool RedisClient::HMSet(const string &key, const vector <string> &fields, const vector <string> &values) {
+    if(!CheckConnectionStatus()){
+        return false;
+    }
     bool bRet = false;
     if(fields.size() != values.size()) {
         return false;
@@ -238,6 +254,7 @@ bool RedisClient::RedisReConnection() {
 
 bool RedisClient::CheckReply(const redisReply *reply) {
     if(reply == NULL){
+        MarkError();
         return false;
     }
     switch(reply->type){
@@ -258,13 +275,16 @@ bool RedisClient::CheckReply(const redisReply *reply) {
                 return true;
             }
             else{
+                MarkError();
                 return false;
             }
         }
         case REDIS_REPLY_ERROR:{
+            MarkError();
             return false;
         }
         default:{
+            MarkError();
             return false;
         }
     }
@@ -277,6 +297,9 @@ void RedisClient::FreeReply(const redisReply *reply) {
 }
 
 bool RedisClient::CommandInteger(const char *cmd, ...) {
+    if(!CheckConnectionStatus()){
+        return false;
+    }
     bool bRet = false;
     if(this->mCtx == NULL){
         return bRet;
@@ -293,6 +316,9 @@ bool RedisClient::CommandInteger(const char *cmd, ...) {
 }
 
 bool RedisClient::CommandString(string &data, const char *cmd, ...) {
+    if(!CheckConnectionStatus()){
+        return false;
+    }
     bool bRet = false;
     if(this->mCtx == NULL){
         return bRet;
@@ -306,5 +332,24 @@ bool RedisClient::CommandString(string &data, const char *cmd, ...) {
         bRet = true;
     }
     return bRet;
+}
+
+void RedisClient::MarkError() {
+    mIsConnectOk = false;
+    gettimeofday(&mLastFalseTime,NULL);
+    return;
+}
+
+bool RedisClient::CheckConnectionStatus() {
+    if(mIsConnectOk) return true;
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    unsigned long intervalTime = (unsigned long) (1000000 * (now.tv_sec - mLastFalseTime.tv_sec) + now.tv_usec - mLastFalseTime.tv_usec);
+    if(intervalTime > mReconnectIntervalTime){
+        if(RedisReConnection()){
+            mIsConnectOk = true;
+        }
+    }
+    return mIsConnectOk;
 }
 

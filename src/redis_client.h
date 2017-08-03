@@ -45,6 +45,8 @@ private:
     bool RedisReConnection();
     bool CheckReply(const redisReply *reply);
     void FreeReply(const redisReply *reply);
+    void MarkError();
+    bool CheckConnectionStatus();
 
 private:
     string mHost;

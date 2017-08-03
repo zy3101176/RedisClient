@@ -14,6 +14,6 @@ link_directories(
         /usr/lib
 )
 
-set(EXECUTABLE_OUTPUT_PATH /home/zhu/RedisClient/bin)
+set(EXECUTABLE_OUTPUT_PATH /U/zhu/RedisClient/bin)
 
 add_subdirectory(src)
