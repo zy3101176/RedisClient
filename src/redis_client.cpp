@@ -208,6 +208,11 @@ bool RedisClient::SetOperateTimeout(struct timeval time) {
     }
 }
 
+void RedisClient::SetReconnectIntervalTime(unsigned long ReconnectIntervalTime){
+    mReconnectIntervalTime = ReconnectIntervalTime;
+    return ;
+}
+
 bool RedisClient::RedisConnection() {
     bool bRet = false;
     struct timeval timeoutVal;

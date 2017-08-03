@@ -38,6 +38,7 @@ public:
 
     bool SelectDataBase(const string & dbnumber);
     bool SetOperateTimeout(struct timeval time);      //us
+    void SetReconnectIntervalTime(unsigned long ReconnectIntervalTime);
 
 private:
     bool CommandInteger(const char* cmd, ...);
