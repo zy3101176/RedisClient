@@ -362,6 +362,7 @@ bool RedisClient::CommandArrey(vector<string> &datas, const char *cmd, ...) {
         }
         bRet = true;
     }
+    return bRet;
 }
 
 void RedisClient::MarkError() {
