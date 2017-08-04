@@ -242,7 +242,7 @@ bool RedisClient::RedisConnection() {
         }
         else{
             bRet = true;
-            if(mLastDatabase != 0){
+            if(mLastDatabase != "0"){
                 SelectDataBase(mLastDatabase);
             }
         }
