@@ -54,11 +54,11 @@ private:
     unsigned int mPort;
     string mPassword;
     unsigned int mTimeout;
-    unsigned int mOperatorTimeout;
     unsigned long mReconnectIntervalTime;
     struct timeval mLastFalseTime;
     redisContext *mCtx;
     bool mIsConnectOk;
+    string mLastDatabase;
 };
 
 #endif //REDISCLIENT_REDIS_CLIENT_H

@@ -19,6 +19,7 @@ void RedisClient::ClientInit(const string &host, unsigned int port, const string
     mPassword = password;
     mReconnectIntervalTime = reconnectIntervalTime;
     mIsConnectOk = true;
+    mLastDatabase = 0;
 }
 
 bool RedisClient::Get(const string &key, string &value) {
@@ -199,6 +200,7 @@ bool RedisClient::HMSet(const string &key, const vector <string> &fields, const 
 
 bool RedisClient::SelectDataBase(const string &dbnumber) {
     string status;
+    mLastDatabase = dbnumber;
     return CommandString(status,"select %s",dbnumber.c_str()) && !strcasecmp(status.c_str(), "OK");
 }
 
@@ -240,6 +242,9 @@ bool RedisClient::RedisConnection() {
         }
         else{
             bRet = true;
+            if(mLastDatabase != 0){
+                SelectDataBase(mLastDatabase);
+            }
         }
         FreeReply(reply);
     }
