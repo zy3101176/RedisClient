@@ -262,40 +262,40 @@ bool RedisClient::RedisReConnection() {
     return RedisConnection();
 }
 
-bool RedisClient::CheckReply(const redisReply *reply) {
+int RedisClient::CheckReply(const redisReply *reply) {
     if(reply == NULL){
         MarkError();
-        return false;
+        return 0;
     }
     switch(reply->type){
         case REDIS_REPLY_STRING:{
-            return true;
+            return REDIS_REPLY_STRING;
         }
         case REDIS_REPLY_ARRAY:{
-            return true;
+            return REDIS_REPLY_ARRAY;
         }
         case REDIS_REPLY_INTEGER:{
-            return true;
+            return REDIS_REPLY_INTEGER;
         }
         case REDIS_REPLY_NIL:{
-            return true;
+            return REDIS_REPLY_NIL;
         }
         case REDIS_REPLY_STATUS:{
             if(strcasecmp(reply->str,"OK") == 0){
-                return true;
+                return REDIS_REPLY_STATUS;
             }
             else{
                 MarkError();
-                return false;
+                return 0;
             }
         }
         case REDIS_REPLY_ERROR:{
             MarkError();
-            return false;
+            return 0;
         }
         default:{
             MarkError();
-            return false;
+            return 0;
         }
     }
 }
@@ -342,6 +342,28 @@ bool RedisClient::CommandString(string &data, const char *cmd, ...) {
         bRet = true;
     }
     return bRet;
+}
+
+bool RedisClient::CommandArrey(vector<string> &datas, const char *cmd, ...) {
+    if(!CheckConnectionStatus()){
+        return false;
+    }
+    bool bRet = false;
+    if(this->mCtx == NULL){
+        return bRet;
+    }
+    va_list args;
+    va_start(args, cmd);
+    redisReply *reply = static_cast<redisReply *>(redisvCommand(this->mCtx, cmd, args));
+    va_end(args);
+    if(CheckReply(reply)){
+        for(size_t i = 0; i < reply->elements; i++){
+            string data;
+            data.assign(reply->element[i]->str, reply->element[i]->len);
+            datas.push_back(data);
+        }
+        bRet = true;
+    }
 }
 
 void RedisClient::MarkError() {

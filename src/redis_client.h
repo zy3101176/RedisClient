@@ -40,11 +40,13 @@ public:
     bool SetOperateTimeout(struct timeval time);      //us
     void SetReconnectIntervalTime(unsigned long ReconnectIntervalTime);
 
-private:
     bool CommandInteger(const char* cmd, ...);
     bool CommandString(string &data, const char* cmd, ...);
+    bool CommandArrey(vector<string> &datas, const char *cmd, ...);
+
+private:
     bool RedisReConnection();
-    bool CheckReply(const redisReply *reply);
+    int CheckReply(const redisReply *reply);
     void FreeReply(const redisReply *reply);
     void MarkError();
     bool CheckConnectionStatus();
