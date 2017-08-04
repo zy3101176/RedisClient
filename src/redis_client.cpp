@@ -19,7 +19,7 @@ void RedisClient::ClientInit(const string &host, unsigned int port, const string
     mPassword = password;
     mReconnectIntervalTime = reconnectIntervalTime;
     mIsConnectOk = true;
-    mLastDatabase = 0;
+    mLastDatabase = "0";
 }
 
 bool RedisClient::Get(const string &key, string &value) {
