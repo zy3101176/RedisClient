@@ -10,7 +10,11 @@
 #include <time.h>
 #include <vector>
 #include <strings.h>
-using namespace std;
+
+using std::string;
+using std::iostream;
+using std::vector;
+
 class RedisClient
 {
 public:
